@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+   
+<meta charset="UTF-8">
+    <title>Bienvenido al Método OC</title>
+<div class="container">
+    <!-- El logo aquí arriba -->
+    <img src="logo-oc.png" alt="Método OC" style="max-width: 150px; height: auto; margin-bottom: 20px;">
+    
+    <h1>Método OC</h1>
+    <p>Sistema de Diagnóstico Técnico</p>
+    <button id="btn-login">Ingresar con Google</button>
+</div>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f4; text-align: center; color: #333; }
+        .container { background-color: #ffffff; padding: 40px; border-radius: 10px; border-top: 5px solid #2c3e50; max-width: 400px; margin: 100px auto; }
+        h1 { color: #2c3e50; }
+        button { background-color: #34495e; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    
+// Verificar que exista un usuario logueado
+firebase.auth().onAuthStateChanged((user) => {
+    if (!user) {
+        // Si no hay usuario, devolver al index
+        window.location.href = "index.html";
+    }
+});
+<script>
+        // Aquí irá su script de Firebase para redirigir a app.html tras loguearse
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+
+<script>
+    // 1. Configuración (Reemplace con sus datos reales de Firebase)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw",
+        authDomain: "metodooc-alumnos.firebaseapp.com",
+        projectId: "metodooc-alumnos",
+        storageBucket: "metodooc-alumnos.firebasestorage.app",
+        messagingSenderId: "255525656537",
+        appId: "1:255525656537:web:a8b35c75de615e889c6bc8"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // 2. Acción del botón Login
+    document.getElementById('btn-login').addEventListener('click', () => {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).then((result) => {
+            // Si el login es exitoso, redirigir a la app
+            window.location.href = "app.html";
+        }).catch((error) => {
+            console.error("Error al ingresar:", error);
+            alert("No se pudo iniciar sesión.");
+        });
+    });
+
+    // 3. Protección: Si ya estaba logueado, llevarlo directo a la app
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            window.location.href = "app.html";
+        }
+    });
+</script>
+   
+</body>
+</html>
