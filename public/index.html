@@ -22,6 +22,8 @@
 <body>
     
 // Verificar que exista un usuario logueado
+<script>
+
 firebase.auth().onAuthStateChanged((user) => {
     if (!user) {
         // Si no hay usuario, devolver al index
