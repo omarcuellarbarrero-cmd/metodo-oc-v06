@@ -12,35 +12,63 @@
     </style>
 </head>
 <body>
+
     <div class="header">
         <img src="logo-oc.png" alt="Logo" style="max-width: 120px; margin-bottom: 10px;">
         <h1>Seleccione su equipo</h1>
     </div>
+
     <div class="menu-grid">
         <div class="opcion" onclick="seleccionar('TV LCD')">TV LCD</div>
         <div class="opcion" onclick="seleccionar('TV TRC')">TV TRC</div>
         <div class="opcion" onclick="seleccionar('Audio')">Audio</div>
         <div class="opcion" onclick="seleccionar('Otros')">Otros</div>
     </div>
-<script>
-    const auth = firebase.auth();
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            window.location.href = "app.html";
-        }
-    });
-</script>
+
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+
     <script>
-        firebase.initializeApp({ apiKey: "SU_API_KEY", authDomain: "SU_PROYECTO.firebaseapp.com", projectId: "SU_PROYECTO" });
-        firebase.auth().onAuthStateChanged((user) => { if (!user) window.location.href = "index.html"; });
+        // Configuración - Sustituya con sus datos reales
+        const firebaseConfig = {
+            apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw",
+            authDomain: "metodooc-alumnos.firebaseapp.com",
+            projectId: "metodooc-alumnos",
+            storageBucket: "metodooc-alumnos.firebasestorage.app",
+            messagingSenderId: "255525656537",
+            appId: "1:255525656537:web:a8b35c75de615e889c6bc8"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        // Guardián de autenticación: Si el usuario no está, lo saca de la App
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = "index.html";
+            }
+        });
+
+        // Función principal de diagnóstico
         async function seleccionar(equipo) {
             const sintomas = prompt(`Describa los síntomas para ${equipo}:`);
             if (sintomas) {
-                const res = await fetch('/api/diagnostico', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ equipo, sintomas })});
-                const data = await res.json();
-                alert(data.diagnostico || data.error);
+                alert("Consultando al cerebro del Método OC...");
+                try {
+                    const res = await fetch('/api/diagnostico', { 
+                        method: 'POST', 
+                        headers: {'Content-Type': 'application/json'}, 
+                        body: JSON.stringify({ equipo, sintomas })
+                    });
+                    const data = await res.json();
+                    
+                    if (data.diagnostico) {
+                        alert("Diagnóstico OC:\n\n" + data.diagnostico);
+                    } else {
+                        alert("Error: " + (data.error || "Algo salió mal"));
+                    }
+                } catch (err) {
+                    alert("Error de conexión con el servidor.");
+                }
             }
         }
     </script>
