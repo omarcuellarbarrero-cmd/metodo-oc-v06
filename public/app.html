@@ -2,62 +2,59 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>App Método OC - Consulta Técnica</title>
+    <title>App Método OC - Diagnóstico</title>
     <style>
-        body { background-color: #ecf0f1; font-family: sans-serif; }
-        .header { background-color: #2c3e50; color: white; padding: 20px; text-align: center; }
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; max-width: 600px; margin: auto; }
-        .opcion { background-color: #bdc3c7; padding: 30px; text-align: center; border-radius: 8px; cursor: pointer; color: #2c3e50; font-weight: bold; }
-        .opcion:hover { background-color: #95a5a6; }
+        body { background-color: #ecf0f1; font-family: sans-serif; padding: 20px; }
+        .container { background-color: #ffffff; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto; border-top: 5px solid #2c3e50; }
+        input, select, textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; background-color: #2c3e50; color: white; padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #resultado { margin-top: 20px; padding: 15px; background: #e8f6f3; border-left: 5px solid #27ae60; display: none; white-space: pre-wrap; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <img src="logo-oc.png" alt="Logo" style="max-width: 120px; margin-bottom: 10px;">
-        <h1>Diagnóstico Método OC</h1>
-    </div>
+<div class="container">
+    <h2>Sistema de Diagnóstico OC</h2>
+    <select id="equipo">
+        <option value="TV LCD">TV LCD</option>
+        <option value="TV TRC">TV TRC</option>
+        <option value="Audio">Audio</option>
+        <option value="Otros">Otros</option>
+    </select>
+    <input type="text" id="marca" placeholder="Marca">
+    <input type="text" id="modelo" placeholder="Modelo">
+    <input type="text" id="sintoma" placeholder="Síntoma principal">
+    <textarea id="mediciones" placeholder="Mediciones de voltajes y pruebas realizadas" rows="4"></textarea>
+    
+    <button onclick="buscarSolucion()">Buscar solución</button>
+    <div id="resultado"></div>
+</div>
 
-    <div class="menu-grid">
-        <div class="opcion" onclick="seleccionar('TV LCD')">TV LCD</div>
-        <div class="opcion" onclick="seleccionar('TV TRC')">TV TRC</div>
-        <div class="opcion" onclick="seleccionar('Audio')">Audio</div>
-        <div class="opcion" onclick="seleccionar('Otros')">Otros</div>
-    </div>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+<script>
+    firebase.initializeApp({ apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw", authDomain: "metodooc-alumnos.firebaseapp.com", projectId: "metodooc-alumnos" });
+    firebase.auth().onAuthStateChanged((user) => { if (!user) window.location.href = "index.html"; });
 
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    async function buscarSolucion() {
+        const datos = {
+            equipo: document.getElementById('equipo').value,
+            marca: document.getElementById('marca').value,
+            modelo: document.getElementById('modelo').value,
+            sintoma: document.getElementById('sintoma').value,
+            mediciones: document.getElementById('mediciones').value
+        };
 
-    <script>
-        firebase.initializeApp({ 
-            apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw", 
-            authDomain: "metodooc-alumnos.firebaseapp.com", 
-            projectId: "metodooc-alumnos" 
+        const resDiv = document.getElementById('resultado');
+        resDiv.style.display = 'block';
+        resDiv.innerText = "Consultando base de conocimientos Método OC...";
+
+        const res = await fetch('/api/diagnostico', { 
+            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos)
         });
-
-        firebase.auth().onAuthStateChanged((user) => { if (!user) window.location.href = "index.html"; });
-
-        async function seleccionar(tipo) {
-            const marca = prompt("MARCA del equipo:");
-            const modelo = prompt("MODELO:");
-            const mediciones = prompt("Mediciones o pruebas realizadas:");
-            const sintomas = prompt("Síntomas principales:");
-            
-            if (marca && modelo && mediciones && sintomas) {
-                alert("Procesando consulta al Método OC...");
-                try {
-                    const res = await fetch('/api/diagnostico', { 
-                        method: 'POST', 
-                        headers: {'Content-Type': 'application/json'}, 
-                        body: JSON.stringify({ equipo: tipo, marca, modelo, mediciones, sintomas })
-                    });
-                    const data = await res.json();
-                    alert(data.diagnostico || data.error);
-                } catch (e) { alert("Error de conexión."); }
-            } else {
-                alert("Debe completar todos los datos para un diagnóstico preciso.");
-            }
-        }
-    </script>
+        const data = await res.json();
+        resDiv.innerText = data.diagnostico || data.error;
+    }
+</script>
 </body>
 </html>
