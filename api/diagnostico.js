@@ -9,7 +9,7 @@ export default async function handler(req, res) {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
         
         // Usamos el modelo estándar 1.5 Flash (es el más rápido y fiable ahora mismo)
-        const model = genAI.getGenerativeModel({ model: "gemini-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
 
         const prompt = `Actúa como experto en el Método OC. Analiza con estos datos:
         Tips de referencia: ${JSON.stringify(tips)}
