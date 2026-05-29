@@ -7,7 +7,9 @@
         body { background-color: #ecf0f1; font-family: sans-serif; padding: 20px; }
         .container { background-color: #ffffff; padding: 20px; border-radius: 10px; max-width: 500px; margin: auto; border-top: 5px solid #2c3e50; }
         input, select, textarea { width: 100%; margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; background-color: #2c3e50; color: white; padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button { width: 100%; padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .btn-buscar { background-color: #2c3e50; color: white; }
+        .btn-cerrar { background-color: #e74c3c; color: white; }
         #resultado { margin-top: 20px; padding: 15px; background: #e8f6f3; border-left: 5px solid #27ae60; display: none; white-space: pre-wrap; }
     </style>
 </head>
@@ -26,7 +28,9 @@
     <input type="text" id="sintoma" placeholder="Síntoma principal">
     <textarea id="mediciones" placeholder="Mediciones de voltajes y pruebas realizadas" rows="4"></textarea>
     
-    <button onclick="buscarSolucion()">Buscar solución</button>
+    <button class="btn-buscar" onclick="buscarSolucion()">Buscar solución</button>
+    <button class="btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>
+    
     <div id="resultado"></div>
 </div>
 
@@ -34,7 +38,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
 <script>
     firebase.initializeApp({ apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw", authDomain: "metodooc-alumnos.firebaseapp.com", projectId: "metodooc-alumnos" });
+    
     firebase.auth().onAuthStateChanged((user) => { if (!user) window.location.href = "index.html"; });
+
+    function cerrarSesion() {
+        firebase.auth().signOut().then(() => {
+            window.location.href = "index.html";
+        }).catch((error) => {
+            alert("Error al cerrar sesión");
+        });
+    }
 
     async function buscarSolucion() {
         const datos = {
@@ -49,11 +62,17 @@
         resDiv.style.display = 'block';
         resDiv.innerText = "Consultando base de conocimientos Método OC...";
 
-        const res = await fetch('/api/diagnostico', { 
-            method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(datos)
-        });
-        const data = await res.json();
-        resDiv.innerText = data.diagnostico || data.error;
+        try {
+            const res = await fetch('/api/diagnostico', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify(datos)
+            });
+            const data = await res.json();
+            resDiv.innerText = data.diagnostico || data.error;
+        } catch (err) {
+            resDiv.innerText = "Error de comunicación con el servidor.";
+        }
     }
 </script>
 </body>
