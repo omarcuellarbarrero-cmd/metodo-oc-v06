@@ -2,56 +2,45 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Bienvenido al Método OC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Método OC</title>
     <style>
-        body { font-family: sans-serif; background-color: #f4f4f4; text-align: center; color: #333; }
-        .container { background-color: #ffffff; padding: 40px; border-radius: 10px; border-top: 5px solid #2c3e50; max-width: 400px; margin: 100px auto; }
-        h1 { color: #2c3e50; }
-        button { background-color: #34495e; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; }
+        body { background-color: #2c3e50; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 30px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        h1 { color: #2c3e50; font-size: 24px; }
+        button { background-color: #4285f4; color: white; border: none; padding: 15px 25px; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; margin-top: 20px; }
+        button:hover { background-color: #357ae8; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <img src="logo-oc.png" alt="Método OC" style="max-width: 150px; height: auto; margin-bottom: 20px;">
-        <h1>Método OC</h1>
-        <p>Sistema de Diagnóstico Técnico</p>
-        <button id="btn-login">Ingresar con Google</button>
-    </div>
+<div class="login-card">
+    <img src="logo-oc.png" alt="Logo" style="max-width: 150px;">
+    <h1>Ingreso Método OC</h1>
+    <p>Inicie sesión con su cuenta autorizada para acceder al sistema de diagnóstico.</p>
+    <button onclick="iniciarSesion()">Ingresar con Google</button>
+</div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+<script>
+    firebase.initializeApp({ apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw", authDomain: "metodooc-alumnos.firebaseapp.com", projectId: "metodooc-alumnos" });
+    
+    // Protección: Clic derecho y F12
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.onkeydown = e => { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.keyCode == 85)) return false; };
 
-    <script>
-        // 1. Configuración
-        const firebaseConfig = {
-            apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw",
-            authDomain: "metodooc-alumnos.firebaseapp.com",
-            projectId: "metodooc-alumnos",
-            storageBucket: "metodooc-alumnos.firebasestorage.app",
-            messagingSenderId: "255525656537",
-            appId: "1:255525656537:web:a8b35c75de615e889c6bc8"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        // 2. Acción del botón Login
-        document.getElementById('btn-login').addEventListener('click', () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).catch((error) => {
-                console.error("Error al ingresar:", error);
-                alert("No se pudo iniciar sesión.");
-            });
-        });
-
-        // 3. En index.html: Solo enviamos si el usuario YA existe
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                window.location.href = "app.html";
+    function iniciarSesion() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider).then(() => {
+            window.location.href = "app.html";
+        }).catch(err => alert("Error al ingresar: " + err.message));
     }
-});
-    </script>
+
+    // Redirección automática si ya está logueado
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) window.location.href = "app.html";
+    });
+</script>
 </body>
 </html>
