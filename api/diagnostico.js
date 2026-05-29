@@ -1,32 +1,25 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { tips } from "./tips.js"; // Importamos su biblioteca técnica
+import { tips } from "./tips.js"; 
 
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).end();
+    if (req.method !== 'POST') return res.status(405).json({ error: "Método no permitido" });
 
     try {
         const { equipo, marca, modelo, sintoma, mediciones } = req.body;
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-        // El prompt obliga a revisar los tips primero
-        const prompt = `Actúa como experto en el Método OC.
-        Base de conocimientos disponible: ${JSON.stringify(tips)}
-        
-        Instrucción: Revisa primero la base de conocimientos. Si existe una solución o tip para el equipo ${marca} ${modelo}, úsalo.
-        
-        Caso a diagnosticar:
-        - Equipo: ${equipo}
-        - Marca: ${marca}
-        - Modelo: ${modelo}
-        - Síntoma: ${sintoma}
-        - Mediciones: ${mediciones}
-        
-        Proporciona un diagnóstico basado en la metodología OC.`;
+        const prompt = `Actúa como experto en el Método OC. Analiza con estos datos:
+        Tips: ${JSON.stringify(tips)}
+        Caso: ${equipo}, ${marca}, ${modelo}, Síntoma: ${sintoma}, Mediciones: ${mediciones}.`;
 
         const result = await model.generateContent(prompt);
         return res.status(200).json({ diagnostico: result.response.text() });
+        
     } catch (error) {
-        return res.status(500).json({ error: "Error técnico: " + error.message });
+        if (error.message.includes("429")) {
+            return res.status(200).json({ diagnostico: "El sistema está saturado. Por favor, espere un momento antes de volver a consultar." });
+        }
+        return res.status(500).json({ error: "Estamos ajustando el sistema, intente en breve." });
     }
 }
