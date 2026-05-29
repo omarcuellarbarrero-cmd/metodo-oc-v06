@@ -17,6 +17,8 @@ export default async function handler(req, res) {
         
         Caso a diagnosticar:
         - Equipo: ${equipo}
+        - Marca: ${marca}
+        - Modelo: ${modelo}
         - Síntoma: ${sintoma}
         - Mediciones: ${mediciones}
         
