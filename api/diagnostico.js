@@ -3,7 +3,9 @@ import { tips } from "./tips.js";
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: "Método no permitido" });
-
+// Añada esto antes de definir el modelo
+const models = await genAI.listModels();
+console.log(models); // Esto imprimirá en los LOGS de Vercel todos los modelos disponibles para usted.
     try {
         const { equipo, marca, modelo, sintoma, mediciones } = req.body;
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
