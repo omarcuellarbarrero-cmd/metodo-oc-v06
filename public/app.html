@@ -21,7 +21,7 @@
 
 <div class="container">
     <div class="logo-container">
-        <img src="logo-oc.png" alt="Omar Cuéllar - Electrónica Profesional">
+        <img src="logo.png" alt="Omar Cuéllar - Electrónica Profesional">
     </div>
 
     <h2>Diagnóstico Método OC</h2>
@@ -50,6 +50,7 @@
     firebase.initializeApp(firebaseConfig);
 
     let usuarioActual = null;
+    let primeraCarga = true;
 
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = e => { 
@@ -65,9 +66,17 @@
             window.location.href = "index.html"; 
         } else {
             usuarioActual = user;
+            
+            // Listener mejorado para evitar saltos en la carga inicial
             firebase.database().ref('usuarios/' + user.uid + '/sesion/token').on('value', (snapshot) => {
                 const tokenServidor = snapshot.val();
                 const tokenLocal = localStorage.getItem('sessionToken');
+                
+                if (primeraCarga) {
+                    primeraCarga = false;
+                    return; // Ignoramos el primer tiro porque es la sesión legítima que acaba de entrar
+                }
+                
                 if (tokenServidor && tokenServidor !== tokenLocal) {
                     alert("Tu cuenta ha sido abierta en otro dispositivo. Se cerrará esta sesión.");
                     cerrarSesion();
