@@ -5,16 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>App Método OC - Diagnóstico</title>
     <style>
-        body { 
-            background-color: #ecf0f1; 
-            font-family: sans-serif; 
-            padding: 10px; 
-            margin: 0; 
-            -webkit-user-select: none; 
-            -moz-user-select: none; 
-            -ms-user-select: none; 
-            user-select: none; 
-        }
+        body { background-color: #ecf0f1; font-family: sans-serif; padding: 10px; margin: 0; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
         .container { background-color: #ffffff; padding: 20px; border-radius: 10px; width: 95%; max-width: 500px; margin: auto; border-top: 5px solid #2c3e50; }
         input, select, textarea { width: 100%; margin-bottom: 15px; padding: 12px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
         button { width: 100%; padding: 15px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 10px; font-size: 16px; }
@@ -33,7 +24,7 @@
     <input type="text" id="sintoma" placeholder="Síntoma principal">
     <textarea id="mediciones" placeholder="Mediciones de voltajes y pruebas realizadas" rows="4"></textarea>
     
-    <button class="btn-buscar" onclick="buscarSolucion()">Buscar solución</button>
+    <button class="btn-buscar" onclick="procesarConsulta()">Buscar solución</button>
     <button class="btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>
     
     <div id="resultado"></div>
@@ -41,11 +32,18 @@
 
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
 <script>
-    firebase.initializeApp({ apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw", authDomain: "metodooc-alumnos.firebaseapp.com", projectId: "metodooc-alumnos" });
-    firebase.auth().onAuthStateChanged((user) => { if (!user) window.location.href = "index.html"; });
+    const firebaseConfig = { 
+        apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw", 
+        authDomain: "metodooc-alumnos.firebaseapp.com", 
+        databaseURL: "https://metodooc-alumnos-default-rtdb.firebaseio.com", 
+        projectId: "metodooc-alumnos" 
+    };
+    firebase.initializeApp(firebaseConfig);
 
-    // Protección Total: Clic derecho, F12, Selección, Copiado y Cortado
+    let usuarioActual = null;
+
     document.addEventListener('contextmenu', e => e.preventDefault());
     document.onkeydown = e => { 
         if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.keyCode == 85)) return false; 
@@ -55,7 +53,42 @@
     document.addEventListener('copy', e => e.preventDefault());
     document.addEventListener('cut', e => e.preventDefault());
 
-    function cerrarSesion() { firebase.auth().signOut().then(() => window.location.href = "index.html"); }
+    firebase.auth().onAuthStateChanged((user) => { 
+        if (!user) {
+            window.location.href = "index.html"; 
+        } else {
+            usuarioActual = user;
+            firebase.database().ref('usuarios/' + user.uid + '/sesion/token').on('value', (snapshot) => {
+                const tokenServidor = snapshot.val();
+                const tokenLocal = localStorage.getItem('sessionToken');
+                if (tokenServidor && tokenServidor !== tokenLocal) {
+                    alert("Tu cuenta ha sido abierta en otro dispositivo. Se cerrará esta sesión.");
+                    cerrarSesion();
+                }
+            });
+        }
+    });
+
+    function cerrarSesion() { 
+        localStorage.removeItem('sessionToken');
+        firebase.auth().signOut().then(() => window.location.href = "index.html"); 
+    }
+
+    async function procesarConsulta() {
+        if (!usuarioActual) return;
+        
+        const snapshot = await firebase.database().ref('usuarios/' + usuarioActual.uid + '/sesion/token').get();
+        const tokenServidor = snapshot.val();
+        const tokenLocal = localStorage.getItem('sessionToken');
+
+        if (tokenServidor !== tokenLocal) {
+            alert("Acceso denegado. Esta sesión ya no es válida.");
+            cerrarSesion();
+            return;
+        }
+
+        await buscarSolucion();
+    }
 
     async function buscarSolucion() {
         const resDiv = document.getElementById('resultado');
