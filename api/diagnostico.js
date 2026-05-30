@@ -25,7 +25,7 @@ export default async function handler(req, res) {
 
         // 🧠 Inicializar el motor de Google Gemini
         const ai = new GoogleGenAI({ apiKey });
-        const model = ai.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        const model = ai.getGenerativeModel({ model: 'gemini-3.5-flash' });
 
         // Aquí la instrucción para la IA
         const prompt = `Actúa como un experto en soporte técnico bajo el Método OC. 
