@@ -18,7 +18,7 @@ export default function AdminPanel() {
 
   // CORREO AUTORIZADO (El cortafuegos maestro)
   const ADMIN_EMAIL = 'omarcuellarbarrero@gmail.com'; 
-
+//Prueba
   useEffect(() => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
