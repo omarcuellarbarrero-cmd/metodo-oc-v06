@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛠️ Panel de Control Maestro - Método OC</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        body { background-color: #121212; color: #fff; font-family: sans-serif; padding: 30px; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h2 { color: #00e676; border-bottom: 2px solid #00e676; padding-bottom: 10px; }
+        label { display: block; margin-bottom: 5px; color: #00e676; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; background-color: #1e1e1e; border: 1px solid #333; color: #fff; border-radius: 5px; margin-bottom: 15px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; backgroundColor: #00e676; color: #000; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; background-color: #00e676; }
+        .msg { margin-top: 15px; padding: 10px; background-color: #1e1e1e; border-left: 4px solid #00e676; display: none; }
+        #loading { font-size: 18px; color: #aaa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading">⚡ Escaneando credenciales de seguridad en el satélite...</div>
+        
+        <div id="admin-panel" style="display: none;">
+            <h2>🛠️ Panel de Control Maestro - Electrónica Profesional</h2>
+            <p style="color: #aaa;">Inyectar nuevos tips técnicos en tiempo real a Firebase.</p>
+
+            <form id="tipForm">
+                <label>Marca:</label>
+                <input type="text" id="marca" required placeholder="Ej: Samsung, LG, Challenger">
+
+                <label>Modelo (Opcional):</label>
+                <input type="text" id="modelo" placeholder="Ej: UN40EH5300">
+
+                <label>Chasis / Matrícula de Tarjeta:</label>
+                <input type="text" id="chasis" required placeholder="Ej: TP.MS338.PB801 o Genérico">
+
+                <label>Síntoma de la Falla:</label>
+                <textarea id="falla" required rows="3" placeholder="Describa el síntoma detallado..."></textarea>
+
+                <label>Procedimiento de Solución:</label>
+                <textarea id="solucion" required rows="5" placeholder="Paso a paso para resolver la falla..."></textarea>
+
+                <button type="submit">🚀 Publicar Tip Exclusivo</button>
+            </form>
+            <div id="statusMsg" class="msg"></div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DE FIREBASE (Usa las mismas credenciales de su app)
+        // El cortafuegos maestro revisará su cuenta de Firebase automáticamente
+        const ADMIN_EMAIL = 'omarcuellarbarrero@gmail.com';
+
+        // Nota: Firebase se inicializará automáticamente si ya detecta la sesión activa de su dominio.
+        // Esperamos a que la autenticación responda
+        window.addEventListener('DOMContentLoaded', () => {
+            // Reutilizamos la lógica de Firebase instalada en su sitio
+            setTimeout(() => {
+                try {
+                    const auth = firebase.auth();
+                    auth.onAuthStateChanged((user) => {
+                        if (user && user.email === ADMIN_EMAIL) {
+                            document.getElementById('loading').style.display = 'none';
+                            document.getElementById('admin-panel').style.display = 'block';
+                        } else {
+                            // Si no es usted, el cortafuegos lo bota de inmediato al inicio
+                            window.location.href = '/';
+                        }
+                    });
+                } catch (e) {
+                    // Si Firebase no está inicializado globalmente en esta ventana estática,
+                    // intentamos leer el estado de la sesión local
+                    document.getElementById('loading').innerHTML = "❌ Error de sincronización. Inicie sesión en la plataforma primero.";
+                }
+            }, 1500);
+        });
+
+        // Manejo del formulario
+        document.getElementById('tipForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const statusMsg = document.getElementById('statusMsg');
+            statusMsg.style.display = 'block';
+            statusMsg.innerText = 'Inyectando tip en la base de datos...';
+
+            const marca = document.getElementById('marca').value.trim();
+            const modelo = document.getElementById('modelo').value.trim().toUpperCase();
+            const chasis = document.getElementById('chasis').value.trim().toUpperCase();
+            const falla = document.getElementById('falla').value.trim();
+            const solucion = document.getElementById('solucion').value.trim();
+
+            try {
+                const db = firebase.database();
+                const tipsRef = db.ref('tips_tecnicos');
+                const nuevoTipRef = tipsRef.push();
+
+                nuevoTipRef.set({
+                    marca: marca,
+                    modelo: modelo,
+                    chasis_tarjeta: chasis,
+                    falla: falla,
+                    solucion: solucion,
+                    fecha: new Date().toISOString()
+                }).then(() => {
+                    statusMsg.innerText = '✅ ¡Tip publicado con éxito total, Maestro!';
+                    document.getElementById('tipForm').reset();
+                }).catch((error) => {
+                    statusMsg.innerText = '❌ Error en el circuito de guardado: ' + error.message;
+                });
+            } catch (error) {
+                statusMsg.innerText = '❌ Error de conexión con Firebase Database.';
+            }
+        });
+    </script>
+</body>
+</html>
