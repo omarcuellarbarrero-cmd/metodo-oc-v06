@@ -56,27 +56,3 @@ Proporciona el diagnóstico con un lenguaje técnico, claro y estructurado.`;
         return res.status(500).json({ error: "El sistema está saturado. Por favor, intente nuevamente en unos segundos." });
     }
 }
-// ... justo después de recibir la respuesta de la IA
-await guardarEnHistorial({
-    usuario: req.body.usuario, // O como identifique a su colega
-    marca: req.body.marca,
-    modelo: req.body.modelo,
-    falla: req.body.falla,
-    respuesta: diagnosticoIA
-});
-// --- Función para guardar en el historial ---
-async function guardarEnHistorial(data) {
-    try {
-        const FIREBASE_URL = 'https://metodooc-alumnos-default-rtdb.firebaseio.com/historial_busquedas.json';
-        await fetch(FIREBASE_URL, {
-            method: 'POST',
-            body: JSON.stringify({
-                ...data,
-                timestamp: new Date().toISOString()
-            }),
-            headers: { 'Content-Type': 'application/json' }
-        });
-    } catch (error) {
-        console.error("Error al registrar historial:", error);
-    }
-}
