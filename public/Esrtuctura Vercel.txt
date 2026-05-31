@@ -1,8 +1,0 @@
-/metodo-oc-vercel
-├── api/
-│   └── diagnostico.js  <-- (Aquí vive la lógica de IA)
-├── public/
-│   ├── app.html        <-- (Su interfaz)
-│   └── tips.js         <-- (Sus datos)
-├── package.json
-└── vercel.json         <-- (Configuración de despliegue)
