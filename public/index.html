@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Método OC Básico v-06</title>
+<title>Método OC Básico v-06</title>
+
+<!-- ======================================
+     BLOQUE 1 - ESTILOS CSS
+====================================== -->
+
+<style>
+body{
+#btnCerrarSesion{
+    background:#d32f2f;
+}
+body{
+    user-select:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+}
+
+    font-family: Arial, sans-serif;
+    background:#f4f4f4;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    margin:0;
+}
+
+.contenedor{
+    background:linear-gradient(
+  135deg,
+  #eceff1,
+  #dde5ea
+);
+    padding:35px;
+    border-radius:15px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.12);
+    width:380px;
+    max-height:90vh;
+    overflow-y:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+h2{
+    text-align:center;
+    font-size:18px;
+}
+
+input,
+select{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    cursor:pointer;
+
+    border:none;
+    border-radius:8px;
+
+    background:#1976d2;
+    color:white;
+
+    font-weight:bold;
+
+    transition:0.2s;
+}
+button:hover{
+    opacity:0.9;
+}
+input,
+select{
+
+    width:100%;
+    padding:12px;
+
+    margin-top:10px;
+
+    box-sizing:border-box;
+
+    border:1px solid #d0d7de;
+    border-radius:8px;
+
+}
+#mensaje{
+    text-align:center;
+    color:#2e7d32;
+    font-weight:bold;
+}
+
+#panelAdmin{
+    display:none;
+}
+#panelBusqueda{
+    display:none;
+}
+.subtitulo{
+    text-align:center;
+    color:#666;
+    margin-top:-10px;
+}
+
+.version{
+    text-align:center;
+    color:#999;
+    font-size:12px;
+}
+</style>
+
+</head>
+
+<!-- ======================================
+     BLOQUE 2 - Visual HTML
+====================================== -->
+
+<body>
+
+<div class="contenedor">
+<div style="text-align:center;">
+
+<img
+  src="logo-oc.png"
+  alt="Método OC"
+  style="
+    width:140px;
+    margin-bottom:15px;
+  "
+>
+
+</div>
+<h1>Método OC</h1>
+
+<p style="
+  text-align:center;
+  margin-top:-10px;
+  color:#666;
+">
+  Plataforma Técnica
+</p>
+<p style="
+  text-align:center;
+  font-size:12px;
+  color:#999;
+">
+  v-06
+</p>
+
+<input
+id="email"
+type="email"
+placeholder="Correo electrónico"
+>
+
+<input
+id="password"
+type="password"
+placeholder="Contraseña"
+>
+
+<button id="btnIngresar">
+Ingresar
+</button>
+<p id="mensaje"></p>
+<button
+id="btnCerrarSesion"
+style="display:none;"
+>
+Cerrar sesión
+</button>
+
+<hr>
+<div id="panelBusqueda">
+<h2>Tips técnicos</h2>
+
+<input
+id="buscarMarca"
+type="text"
+placeholder="Buscar marca"
+>
+
+<input
+id="buscarModelo"
+type="text"
+placeholder="Buscar modelo"
+>
+
+<input
+id="buscarSintoma"
+type="text"
+placeholder="Buscar síntoma"
+>
+<select id="buscarEspecialidad">
+
+  <option value="">
+    Todas las especialidades
+  </option>
+
+  <option value="televisores_trc">
+    Televisores TRC
+  </option>
+
+  <option value="lavadoras">
+    Lavadoras
+  </option>
+
+  <option value="televisores_led">
+    Televisores LED
+  </option>
+
+</select>
+
+<button id="btnBuscar">
+Buscar
+</button>
+<p id="cantidadResultados">
+Resultados encontrados: 0
+</p>
+
+<div id="listaTips"></div>
+<hr>
+</div>
+<div id="panelAdmin">
+<hr>
+
+<h2>📊 Estadísticas</h2>
+
+<p id="totalConsultas">
+Consultas realizadas: 0
+</p>
+<p id="marcaMasConsultada">
+Marca más consultada: -
+</p>
+
+<p id="especialidadMasConsultada">
+Especialidad más consultada: -
+</p>
+
+<h3>Top síntomas consultados</h3>
+
+<div id="topSintomas">
+Sin datos
+</div>
+
+<h2>Nuevo Tip</h2>
+
+<input
+id="nuevaEspecialidad"
+type="text"
+placeholder="Especialidad"
+>
+
+<input
+id="nuevaMarca"
+type="text"
+placeholder="Marca"
+>
+
+<input
+id="nuevoModelo"
+type="text"
+placeholder="Modelo"
+>
+
+<input
+id="nuevoSintoma"
+type="text"
+placeholder="Síntoma"
+>
+
+<input
+id="nuevaSolucion"
+type="text"
+placeholder="Solución"
+>
+
+<input
+id="nuevaConfianza"
+type="number"
+placeholder="Confianza"
+>
+
+<button id="btnGuardarTip">
+Guardar Tip
+</button>
+</div>
+</div>
+<script type="module">
+
+// ======================================
+// BLOQUE 3 - Imports Firebase
+// ======================================
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  serverTimestamp
+} 
+from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+// ======================================
+// BLOQUE 4 - Configuracion Firebase
+// ======================================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCGPci2Tjb101nAaZUOh_3K_lpSmxfSDGw",
+  authDomain: "metodooc-alumnos.firebaseapp.com",
+  projectId: "metodooc-alumnos",
+  storageBucket: "metodooc-alumnos.firebasestorage.app",
+  messagingSenderId: "255525656537",
+  appId: "1:255525656537:web:a8b35c75de615e889c6bc8"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app, "metodo-oc");
+
+// ======================================
+// BLOQUE 5 - Variables Globables
+// ======================================
+
+let todosLosTips = [];
+let esAdmin = false;
+let usuarioActual = "";
+
+// ======================================
+// BLOQUE 6 - Mostrar Tips
+// ======================================
+
+function mostrarTips(tips) {
+
+  const listaTips =
+
+    document.getElementById("listaTips");
+
+  listaTips.innerHTML = "";
+
+  tips.forEach((tip) => {
+
+    listaTips.innerHTML += `
+      <div style="
+        background:white;
+        border-left:5px solid #1976d2;
+        padding:15px;
+        margin:15px 0;
+        border-radius:10px;
+        box-shadow:0 2px 8px rgba(0,0,0,0.1);
+      ">
+
+        <b>Especialidad:</b> ${tip.especialidad}<br>
+        <b>Marca:</b> ${tip.marca}<br>
+        <b>Modelo:</b> ${tip.modelo}<br>
+        <b>Síntoma:</b> ${tip.sintoma}<br><br>
+
+        <button onclick="
+          this.style.display='none';
+          this.nextElementSibling.style.display='block';
+        ">
+          Ver solución
+        </button>
+
+        <div style="display:none; margin-top:10px;">
+
+          <b>Solución:</b><br>
+          ${tip.solucion}<br><br>
+
+          <b>Confianza:</b>
+
+          <span style="
+            color:${
+              tip.confianza >= 90 ? 'green' :
+              tip.confianza >= 70 ? 'orange' :
+              'red'
+            };
+            font-weight:bold;
+          ">
+            ${tip.confianza}%
+          </span>
+
+          ${esAdmin ? `
+            <br><br>
+
+            <button onclick="editarTip('${tip.id}')">
+              Editar
+            </button>
+
+            <button onclick="desactivarTip('${tip.id}')">
+              Desactivar
+            </button>
+          ` : ""}
+
+        </div>
+
+      </div>
+    `;
+  });
+}
+// ======================================
+// BLOQUE 7 - BUSCADOR
+// ======================================
+function buscarTips() {
+
+  const marca =
+    document.getElementById("buscarMarca")
+      .value
+      .toLowerCase();
+
+  const modelo =
+    document.getElementById("buscarModelo")
+      .value
+      .toLowerCase();
+
+  const sintoma =
+    document.getElementById("buscarSintoma")
+      .value
+      .toLowerCase();
+
+  const especialidad =
+    document.getElementById("buscarEspecialidad")
+      .value
+      .toLowerCase();
+
+  const resultados = todosLosTips.filter(
+    tip =>
+      tip.marca?.toLowerCase().includes(marca) &&
+      tip.modelo?.toLowerCase().includes(modelo) &&
+      tip.sintoma?.toLowerCase().includes(sintoma) &&
+      (
+        especialidad === "" ||
+        tip.especialidad?.toLowerCase() === especialidad
+      )
+  );
+
+  document.getElementById(
+    "cantidadResultados"
+  ).innerHTML =
+    "Resultados encontrados: " +
+    resultados.length;
+
+mostrarTips(resultados);
+
+}
+
+// ======================================
+// BLOQUE 8 - Login
+// ======================================
+
+document.getElementById("btnIngresar")
+.addEventListener("click", async () => {
+
+  const email =
+    document.getElementById("email").value;
+
+  const password =
+    document.getElementById("password").value;
+
+  try {
+
+    await signInWithEmailAndPassword(
+
+      auth,
+      email,
+      password
+    );
+    usuarioActual = email;
+
+    if (
+      email ===
+      "gerencia.metodooc@gmail.com"
+    ) {
+
+      esAdmin = true;
+
+      document.getElementById(
+        "panelAdmin"
+      ).style.display = "block";
+    }
+
+    document.getElementById("mensaje")
+      .innerHTML =
+      "Bienvenido: " + email;
+      document.getElementById(
+  "btnCerrarSesion"
+).style.display = "block";
+
+    document.getElementById(
+    "panelBusqueda"
+    ).style.display = "block";
+
+    const snapshot = await getDocs(
+      collection(db, "tips")
+    );
+
+    todosLosTips = [];
+
+    snapshot.forEach((documento) => {
+
+      const tip = documento.data();
+
+      tip.id = documento.id;
+
+      if (tip.activo === true) {
+        todosLosTips.push(tip);
+      }
+
+    });
+
+const tipsEjemplo =
+  [...todosLosTips]
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 2);
+
+tipsEjemplo.sort(
+  (a, b) =>
+    b.confianza - a.confianza
+);
+mostrarTips(tipsEjemplo);
+
+document.getElementById(
+  "cantidadResultados"
+).innerHTML =
+  "Mostrando ejemplos de la base de conocimientos";
+
+  } catch(error) {
+
+    console.error(error);
+    alert(error.message);
+
+  }
+
+});
+
+// ======================================
+// BLOQUE 9 - Eventos
+// ======================================
+document.getElementById("btnBuscar")
+.addEventListener("click", () => {
+
+  buscarTips();
+
+  guardarConsulta(
+    document.getElementById("buscarMarca").value,
+    document.getElementById("buscarModelo").value,
+    document.getElementById("buscarSintoma").value,
+    document.getElementById("buscarEspecialidad").value
+  );
+
+});
+document.getElementById("buscarMarca")
+.addEventListener("input", buscarTips);
+
+document.getElementById("buscarModelo")
+.addEventListener("input", buscarTips);
+
+document.getElementById("buscarSintoma")
+.addEventListener("input", buscarTips);
+
+document.getElementById("buscarEspecialidad")
+.addEventListener("change", buscarTips);
+
+document.getElementById(
+  "btnCerrarSesion"
+)
+.addEventListener(
+  "click",
+  async () => {
+
+    try {
+
+      await signOut(auth);
+
+      location.reload();
+
+    } catch(error) {
+
+      console.error(error);
+
+      alert(
+        "Error cerrando sesión"
+      );
+
+    }
+
+  }
+);
+
+// ======================================
+// BLOQUE 10 - Administracion
+// ======================================
+
+document.getElementById("btnGuardarTip")
+.addEventListener("click", async () => {
+
+  try {
+
+    await addDoc(
+      collection(db, "tips"),
+      {
+        activo: true,
+
+        especialidad:
+          document.getElementById(
+            "nuevaEspecialidad"
+          ).value,
+
+        marca:
+          document.getElementById(
+            "nuevaMarca"
+          ).value,
+
+        modelo:
+          document.getElementById(
+            "nuevoModelo"
+          ).value,
+
+        sintoma:
+          document.getElementById(
+            "nuevoSintoma"
+          ).value,
+
+        solucion:
+          document.getElementById(
+            "nuevaSolucion"
+          ).value,
+
+        confianza:
+          Number(
+            document.getElementById(
+              "nuevaConfianza"
+            ).value
+          )
+      }
+    );
+
+    alert(
+      "Tip guardado correctamente"
+    );
+
+  } catch(error) {
+
+    console.error(error);
+    alert(error.message);
+
+  }
+
+});
+
+window.editarTip = async function(id) {
+
+  const tip =
+    todosLosTips.find(
+      t => t.id === id
+    );
+
+  if (!tip) return;
+
+  const nuevaSolucion = prompt(
+    "Nueva solución:",
+    tip.solucion
+  );
+
+  if (
+    nuevaSolucion === null ||
+    nuevaSolucion.trim() === ""
+  ) {
+    return;
+  }
+
+  try {
+
+    await updateDoc(
+      doc(db, "tips", id),
+      {
+        solucion: nuevaSolucion
+      }
+    );
+
+    tip.solucion = nuevaSolucion;
+
+    buscarTips();
+
+    alert(
+      "Tip actualizado correctamente"
+    );
+
+  } catch(error) {
+
+    console.error(error);
+    alert(error.message);
+
+  }
+
+};
+
+window.desactivarTip = async function(id) {
+
+  const confirmar = confirm(
+    "¿Deseas desactivar este tip?"
+  );
+
+  if (!confirmar) return;
+
+  try {
+
+    await updateDoc(
+      doc(db, "tips", id),
+      {
+        activo: false
+      }
+    );
+
+    todosLosTips =
+      todosLosTips.filter(
+        tip => tip.id !== id
+      );
+
+    buscarTips();
+
+    alert(
+      "Tip desactivado correctamente"
+    );
+
+  } catch(error) {
+
+    console.error(error);
+    alert(error.message);
+
+  }
+
+};
+
+// ======================================
+// BLOQUE 11 - Estadisticas
+// ======================================
+
+async function guardarConsulta(
+  marca,
+  modelo,
+  sintoma,
+  especialidad
+) {
+
+  console.log("GUARDAR CONSULTA EJECUTADA");
+
+  if (!usuarioActual) {
+    console.log("usuarioActual VACÍO");
+    return;
+  }
+
+  try {
+
+    console.log("usuarioActual:", usuarioActual);
+
+    await addDoc(
+      collection(db, "consultas"),
+      {
+        usuario: usuarioActual,
+        marca,
+        modelo,
+        sintoma,
+        especialidad,
+        fecha: serverTimestamp()
+      }
+    );
+
+    console.log("CONSULTA GUARDADA");
+
+  } catch(error) {
+
+    console.error(
+      "Error guardando consulta",
+      error
+    );
+
+  }
+
+}
+
+async function cargarEstadisticas() {
+
+
+
+try {
+
+const snapshot = await getDocs(
+  collection(db, "consultas")
+);
+
+const contadorMarcas = {};
+const contadorEspecialidades = {};
+const contadorSintomas = {};
+
+snapshot.forEach((doc) => {
+
+  const consulta = doc.data();
+
+  const marca =
+    consulta.marca || "";
+  
+  const especialidad =
+  consulta.especialidad || "";
+
+  const sintoma =
+  consulta.sintoma || "";
+
+  if (marca === "") {
+    return;
+  }
+
+  contadorMarcas[marca] =
+    (contadorMarcas[marca] || 0) + 1;
+
+  if (especialidad !== "") {
+
+  contadorEspecialidades[
+    especialidad
+  ] =
+    (
+      contadorEspecialidades[
+        especialidad
+      ] || 0
+    ) + 1;
+
+    if (sintoma !== "") {
+
+  contadorSintomas[
+    sintoma
+  ] =
+    (
+      contadorSintomas[
+        sintoma
+      ] || 0
+    ) + 1;
+
+}
+
+}
+
+});
+
+let marcaTop = "-";
+let cantidadTop = 0;
+let especialidadTop = "-";
+let cantidadEspecialidadTop = 0;
+
+for (const marca in contadorMarcas) {
+
+
+if (
+contadorMarcas[marca] >
+cantidadTop
+) {
+
+cantidadTop =
+  contadorMarcas[marca];
+
+marcaTop = marca;
+
+
+}
+
+}
+
+for (
+const especialidad
+in contadorEspecialidades
+) {
+
+if (
+
+
+contadorEspecialidades[
+  especialidad
+] >
+
+cantidadEspecialidadTop
+
+
+) {
+
+
+cantidadEspecialidadTop =
+
+  contadorEspecialidades[
+    especialidad
+  ];
+
+especialidadTop =
+  especialidad;
+
+
+}
+const rankingSintomas = Object.entries(
+  contadorSintomas
+)
+.sort(
+  (a, b) => b[1] - a[1]
+)
+.slice(0, 5);
+
+}
+
+document.getElementById(
+"totalConsultas"
+).innerHTML =
+"Consultas realizadas: " +
+snapshot.size;
+
+document.getElementById(
+"marcaMasConsultada"
+).innerHTML =
+"Marca más consultada: " +
+marcaTop +
+" (" +
+cantidadTop +
+")";
+
+document.getElementById(
+"especialidadMasConsultada"
+).innerHTML =
+"Especialidad más consultada: " +
+especialidadTop +
+" (" +
+cantidadEspecialidadTop +
+")";
+
+let htmlRanking = "";
+
+rankingSintomas.forEach(
+  (item, index) => {
+
+    htmlRanking +=
+      (index + 1) +
+      ". " +
+      item[0] +
+      " (" +
+      item[1] +
+      ")<br>";
+
+  }
+);
+
+document.getElementById(
+  "topSintomas"
+).innerHTML =
+  htmlRanking || "Sin datos";
+
+} catch(error) {
+
+console.error(
+"Error cargando estadísticas",
+error
+);
+
+}
+
+}
+document.addEventListener(
+  "contextmenu",
+  function(e) {
+
+    e.preventDefault();
+
+  }
+);
+</script>
+
+</body>
+
+</html>

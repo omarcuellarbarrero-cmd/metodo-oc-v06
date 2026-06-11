@@ -1,0 +1,9 @@
+{
+  "name": "metodo-oc-basico",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "firebase": "^12.14.0"
+  }
+}
