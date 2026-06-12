@@ -545,6 +545,7 @@ document.getElementById(
   "cantidadResultados"
 ).innerHTML =
   "Mostrando ejemplos de la base de conocimientos";
+  await cargarEstadisticas();
 
   } catch(error) {
 
@@ -915,6 +916,7 @@ especialidadTop =
 
 
 }
+}
 const rankingSintomas = Object.entries(
   contadorSintomas
 )
@@ -922,8 +924,6 @@ const rankingSintomas = Object.entries(
   (a, b) => b[1] - a[1]
 )
 .slice(0, 5);
-
-}
 
 document.getElementById(
 "totalConsultas"
