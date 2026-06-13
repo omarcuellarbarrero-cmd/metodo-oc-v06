@@ -547,12 +547,56 @@ document.getElementById(
   "Mostrando ejemplos de la base de conocimientos";
   await cargarEstadisticas();
 
-  } catch(error) {
+} catch(error) {
 
-    console.error(error);
-    alert(error.message);
+  console.error(error);
+
+  let mensajeError =
+    "Error al iniciar sesión.";
+
+  if (
+    error.code ===
+    "auth/invalid-credential"
+  ) {
+
+    mensajeError =
+      "Correo o contraseña incorrectos.";
 
   }
+
+  else if (
+    error.code ===
+    "auth/user-not-found"
+  ) {
+
+    mensajeError =
+      "El usuario no existe.";
+
+  }
+
+  else if (
+    error.code ===
+    "auth/wrong-password"
+  ) {
+
+    mensajeError =
+      "Contraseña incorrecta.";
+
+  }
+
+  else if (
+    error.code ===
+    "auth/invalid-email"
+  ) {
+
+    mensajeError =
+      "El correo electrónico no es válido.";
+
+  }
+
+  alert(mensajeError);
+
+}
 
 });
 
