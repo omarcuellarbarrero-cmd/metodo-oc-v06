@@ -118,7 +118,32 @@ select{
     color:#999;
     font-size:12px;
 }
+.grafico-item {
+  margin-bottom: 12px;
+}
+
+.grafico-label {
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.grafico-barra {
+  height: 28px;
+  background: linear-gradient(
+    90deg,
+    #ff6600,
+    #eec9a4
+  );
+  color: white;
+  line-height: 28px;
+  padding-left: 10px;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: all 0.5s ease;
+}
 </style>
+
 
 </head>
 
@@ -253,6 +278,14 @@ Especialidad más consultada: -
 <div id="topSintomas">
 Sin datos
 </div>
+<h3>📊 Marcas más consultadas</h3>
+<div id="graficoMarcas"></div>
+
+<h3>📊 Especialidades más consultadas</h3>
+<div id="graficoEspecialidades"></div>
+
+<h3>📊 Top Síntomas</h3>
+<div id="graficoSintomas"></div>
 
 <h2>Nuevo Tip</h2>
 
@@ -799,56 +832,7 @@ window.desactivarTip = async function(id) {
 
 };
 
-// ======================================
-// BLOQUE 11 - Estadisticas
-// ======================================
-
-async function guardarConsulta(
-  marca,
-  modelo,
-  sintoma,
-  especialidad
-) {
-
-  console.log("GUARDAR CONSULTA EJECUTADA");
-
-  if (!usuarioActual) {
-    console.log("usuarioActual VACÍO");
-    return;
-  }
-
-  try {
-
-    console.log("usuarioActual:", usuarioActual);
-
-    await addDoc(
-      collection(db, "consultas"),
-      {
-        usuario: usuarioActual,
-        marca,
-        modelo,
-        sintoma,
-        especialidad,
-        fecha: serverTimestamp()
-      }
-    );
-
-    console.log("CONSULTA GUARDADA");
-
-  } catch(error) {
-
-    console.error(
-      "Error guardando consulta",
-      error
-    );
-
-  }
-
-}
-
 async function cargarEstadisticas() {
-
-
 
 try {
 
@@ -866,101 +850,98 @@ snapshot.forEach((doc) => {
 
   const marca =
     consulta.marca || "";
-  
+
   const especialidad =
-  consulta.especialidad || "";
+    consulta.especialidad || "";
 
   const sintoma =
-  consulta.sintoma || "";
+    consulta.sintoma || "";
 
-  if (marca === "") {
-    return;
+  if (marca !== "") {
+
+    contadorMarcas[marca] =
+      (contadorMarcas[marca] || 0) + 1;
+
   }
-
-  contadorMarcas[marca] =
-    (contadorMarcas[marca] || 0) + 1;
 
   if (especialidad !== "") {
 
-  contadorEspecialidades[
-    especialidad
-  ] =
-    (
-      contadorEspecialidades[
-        especialidad
-      ] || 0
-    ) + 1;
+    contadorEspecialidades[
+      especialidad
+    ] =
+      (
+        contadorEspecialidades[
+          especialidad
+        ] || 0
+      ) + 1;
 
-    if (sintoma !== "") {
+  }
 
-  contadorSintomas[
-    sintoma
-  ] =
-    (
-      contadorSintomas[
-        sintoma
-      ] || 0
-    ) + 1;
+  if (sintoma !== "") {
 
-}
+    contadorSintomas[
+      sintoma
+    ] =
+      (
+        contadorSintomas[
+          sintoma
+        ] || 0
+      ) + 1;
 
-}
+  }
 
 });
 
 let marcaTop = "-";
 let cantidadTop = 0;
-let especialidadTop = "-";
-let cantidadEspecialidadTop = 0;
 
 for (const marca in contadorMarcas) {
 
+  if (
+    contadorMarcas[marca] >
+    cantidadTop
+  ) {
 
-if (
-contadorMarcas[marca] >
-cantidadTop
-) {
+    cantidadTop =
+      contadorMarcas[marca];
 
-cantidadTop =
-  contadorMarcas[marca];
+    marcaTop = marca;
 
-marcaTop = marca;
-
-
-}
+  }
 
 }
+
+let especialidadTop = "-";
+let cantidadEspecialidadTop = 0;
 
 for (
-const especialidad
-in contadorEspecialidades
+  const especialidad
+  in contadorEspecialidades
 ) {
 
-if (
+  if (
 
+    contadorEspecialidades[
+      especialidad
+    ] >
 
-contadorEspecialidades[
-  especialidad
-] >
+    cantidadEspecialidadTop
 
-cantidadEspecialidadTop
+  ) {
 
+    cantidadEspecialidadTop =
 
-) {
+      contadorEspecialidades[
+        especialidad
+      ];
 
+    especialidadTop =
+      especialidad;
 
-cantidadEspecialidadTop =
-
-  contadorEspecialidades[
-    especialidad
-  ];
-
-especialidadTop =
-  especialidad;
-
+  }
 
 }
-}
+
 const rankingSintomas = Object.entries(
   contadorSintomas
 )
@@ -970,28 +951,28 @@ const rankingSintomas = Object.entries(
 .slice(0, 5);
 
 document.getElementById(
-"totalConsultas"
+  "totalConsultas"
 ).innerHTML =
-"Consultas realizadas: " +
-snapshot.size;
+  "Consultas realizadas: " +
+  snapshot.size;
 
 document.getElementById(
-"marcaMasConsultada"
+  "marcaMasConsultada"
 ).innerHTML =
-"Marca más consultada: " +
-marcaTop +
-" (" +
-cantidadTop +
-")";
+  "Marca más consultada: " +
+  marcaTop +
+  " (" +
+  cantidadTop +
+  ")";
 
 document.getElementById(
-"especialidadMasConsultada"
+  "especialidadMasConsultada"
 ).innerHTML =
-"Especialidad más consultada: " +
-especialidadTop +
-" (" +
-cantidadEspecialidadTop +
-")";
+  "Especialidad más consultada: " +
+  especialidadTop +
+  " (" +
+  cantidadEspecialidadTop +
+  ")";
 
 let htmlRanking = "";
 
@@ -1014,24 +995,141 @@ document.getElementById(
 ).innerHTML =
   htmlRanking || "Sin datos";
 
+let htmlMarcas = "";
+
+Object.entries(contadorMarcas)
+.sort((a, b) => b[1] - a[1])
+.slice(0, 5)
+.forEach(item => {
+
+  htmlMarcas +=
+
+    '<div class="grafico-item">' +
+
+    '<div class="grafico-label">' +
+
+    item[0] +
+    ' (' +
+    item[1] +
+    ')' +
+
+    '</div>' +
+
+    '<div class="grafico-barra" style="width:' +
+
+    (item[1] * 20) +
+
+    'px;">' +
+
+    item[1] +
+
+    '</div>' +
+
+    '</div>';
+
+});
+
+document.getElementById(
+  "graficoMarcas"
+).innerHTML =
+  htmlMarcas;
+
+let htmlEspecialidades = "";
+
+Object.entries(
+  contadorEspecialidades
+)
+.sort((a, b) => b[1] - a[1])
+.slice(0, 5)
+.forEach(item => {
+
+  htmlEspecialidades +=
+
+    '<div class="grafico-item">' +
+
+    '<div class="grafico-label">' +
+
+    item[0] +
+    ' (' +
+    item[1] +
+    ')' +
+
+    '</div>' +
+
+    '<div class="grafico-barra" style="width:' +
+
+    (item[1] * 20) +
+
+    'px;">' +
+
+    item[1] +
+
+    '</div>' +
+
+    '</div>';
+
+});
+
+document.getElementById(
+  "graficoEspecialidades"
+).innerHTML =
+  htmlEspecialidades;
+
+let htmlSintomas = "";
+
+Object.entries(
+  contadorSintomas
+)
+.sort((a, b) => b[1] - a[1])
+.slice(0, 5)
+.forEach(item => {
+
+  htmlSintomas +=
+
+    '<div class="grafico-item">' +
+
+    '<div class="grafico-label">' +
+
+    item[0] +
+    ' (' +
+    item[1] +
+    ')' +
+
+    '</div>' +
+
+    '<div class="grafico-barra" style="width:' +
+
+    (item[1] * 20) +
+
+    'px;">' +
+
+    item[1] +
+
+    '</div>' +
+
+    '</div>';
+
+});
+
+document.getElementById(
+  "graficoSintomas"
+).innerHTML =
+  htmlSintomas;
+
+
 } catch(error) {
 
+
 console.error(
-"Error cargando estadísticas",
-error
+  "Error cargando estadísticas",
+  error
 );
+
 
 }
 
 }
-document.addEventListener(
-  "contextmenu",
-  function(e) {
 
-    e.preventDefault();
-
-  }
-);
 </script>
 
 </body>
