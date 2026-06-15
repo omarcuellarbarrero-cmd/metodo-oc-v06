@@ -232,12 +232,12 @@ placeholder="Buscar síntoma"
     Todas las especialidades
   </option>
 
-  <option value="televisores_trc">
+  <option value="televisores trc">
     Televisores TRC
   </option>
 
-  <option value="televisores_lcd">
-    Televisores LED
+  <option value="televisores lcd">
+    Televisores LCD
   </option>
 
 </select>
@@ -473,8 +473,30 @@ function buscarTips() {
       .value
       .toLowerCase();
 
-  const resultados = todosLosTips.filter(
-    tip =>
+      console.log(
+  "Especialidad seleccionada:",
+  especialidad
+);
+console.log(
+  "Especialidades en BD:"
+);
+
+todosLosTips.forEach(tip => {
+
+  console.log(
+    tip.especialidad
+  );
+
+});
+const resultados = todosLosTips.filter(
+  tip => {
+
+    console.log(
+      "BD:",
+      tip.especialidad
+    );
+
+    return (
       tip.marca?.toLowerCase().includes(marca) &&
       tip.modelo?.toLowerCase().includes(modelo) &&
       tip.sintoma?.toLowerCase().includes(sintoma) &&
@@ -482,9 +504,12 @@ function buscarTips() {
         especialidad === "" ||
         tip.especialidad?.toLowerCase() === especialidad
       )
-  );
+    );
 
-  document.getElementById(
+  }
+);  
+
+document.getElementById(
     "cantidadResultados"
   ).innerHTML =
     "Resultados encontrados: " +
