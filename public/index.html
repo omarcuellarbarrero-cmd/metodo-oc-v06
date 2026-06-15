@@ -5,7 +5,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Método OC Básico v-06</title>
-<title>Método OC Básico v-06</title>
 
 <!-- ======================================
      BLOQUE 1 - ESTILOS CSS
@@ -71,7 +70,7 @@ button{
     border:none;
     border-radius:8px;
 
-    background:#1976d2;
+    background:#194ad2;
     color:white;
 
     font-weight:bold;
@@ -209,7 +208,7 @@ Cerrar sesión
 <hr>
 <div id="panelBusqueda">
 <h2>Tips técnicos</h2>
-
+<div id="totalTips"></div>
 <input
 id="buscarMarca"
 type="text"
@@ -237,11 +236,7 @@ placeholder="Buscar síntoma"
     Televisores TRC
   </option>
 
-  <option value="lavadoras">
-    Lavadoras
-  </option>
-
-  <option value="televisores_led">
+  <option value="televisores_lcd">
     Televisores LED
   </option>
 
@@ -548,6 +543,12 @@ document.getElementById("btnIngresar")
     const snapshot = await getDocs(
       collection(db, "tips")
     );
+document.getElementById(
+  "totalTips"
+).innerHTML =
+  "📚 Base de conocimientos: " +
+  snapshot.size +
+  " Tips disponibles";
 
     todosLosTips = [];
 
